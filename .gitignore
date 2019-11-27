@@ -1,0 +1,5 @@
+jade-server/venv
+jade-server/jade/__pycache__
+jade-server/jade/jade.ini
+jade-server/jade/routes/__pycache__
+__pycache__
