@@ -1,5 +1,10 @@
+.DS_Store
+
 jade-server/venv
 jade-server/jade/__pycache__
 jade-server/jade/jade.ini
 jade-server/jade/routes/__pycache__
 __pycache__
+*.pyc
+
+jade-client/node_modules
