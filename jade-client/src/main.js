@@ -80,7 +80,8 @@ const store = new Vuex.Store({
   actions: {
 
     fetch_pages (context) {
-      axios.get('http://localhost:4000/api/v1/pages')
+      axios.defaults.baseURL = 'http://jade-cms.com:4000';
+      axios.get('/api/v1/pages')
       .then(response => {
         var page
         for (page of response.data) {
@@ -94,7 +95,8 @@ const store = new Vuex.Store({
     },
 
     fetch_main_menu (context) {
-      axios.get('http://localhost:4000/api/v1/main-menu')
+      axios.defaults.baseURL = 'http://jade-cms.com:4000';
+      axios.get('/api/v1/main-menu')
       .then(response => {
         // JSON responses are automatically parsed.
         context.commit('set_main_menu', response.data)
@@ -105,7 +107,8 @@ const store = new Vuex.Store({
     },
 
     fetch_current_page (context, {name, path}) {
-      axios.get('http://localhost:4000/api/v1/pages/' + name)
+      axios.defaults.baseURL = 'http://jade-cms.com:4000';
+      axios.get('/api/v1/pages/' + name)
       .then(response => {
         // JSON responses are automatically parsed.
         context.commit('set_current_page', {page: response.data[0], name: name, path: path}) 

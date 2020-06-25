@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import psycopg2, psycopg2.extras, json
 
 class JadeDB(object):
