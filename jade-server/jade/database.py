@@ -15,6 +15,7 @@ class JadeDB(object):
                              port=self.app.config['DB_PORT'],
                              sslmode=self.app.config['DB_SSL'],
                              connect_timeout=15)
+
       self.conn.autocommit = True
 
     except Exception as error:

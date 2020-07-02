@@ -12,9 +12,9 @@
 
 <script>
 
-import axios from 'axios';
 import Navigation from './components/Navigation.vue'
 import Footer from './components/Footer.vue'
+import router from './router'
 
 export default {
   name: 'Jade',
@@ -27,7 +27,6 @@ export default {
   created() {    
     this.$store.dispatch('fetch_pages')
     this.$store.dispatch('fetch_main_menu')
-    this.$store.dispatch('fetch_current_page', {name: this.$route.name, path: this.$route.path})
   },
 
   watch: {

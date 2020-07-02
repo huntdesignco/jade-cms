@@ -1,12 +1,15 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
-import Jade from './Jade'
 import Vuex from 'vuex'
 import BootstrapVue from 'bootstrap-vue'
+import axios from 'axios';
+
+import Jade from './Jade'
+import HTMLRenderer from '@/components/HTMLRenderer.vue'
+import PageNotFound from '@/components/PageNotFound.vue'
 
 import router from './router'
-import axios from 'axios';
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -19,6 +22,8 @@ Vue.config.productionTip = false
 Vue.use(BootstrapVue)
 Vue.use(Vuex)
 
+axios.defaults.baseURL = process.env.API_URL;
+
 const store = new Vuex.Store({
 
   state: {
@@ -26,8 +31,10 @@ const store = new Vuex.Store({
     pages: [],
     main_menu: [],
     errors: [],
-    current_name: '',
-    current_path: '',
+    current_name: null,
+    current_path: null,
+    page_routes: [],
+    page_content: null
   },
 
   getters: {
@@ -49,11 +56,16 @@ const store = new Vuex.Store({
     get_current_path: state => {
       return state.current_path
     },
-  
     get_valign: state => {
       if (state.page == undefined) { return 'middle' }
       else { return state.page.valign }
-    }
+    },
+    get_routes: state => {
+      return state.routes
+    },
+    get_page_content: state => {
+      return state.page_content
+    },
   },
   
   mutations: {
@@ -73,20 +85,33 @@ const store = new Vuex.Store({
     
     set_errors(state, e) {
       state.errors.push(e)
+    },
+    set_routes(state, routes) {
+      state.routes = routes
+    },
+    set_page_content(state, content) {
+      state.page_content = content
     }
 
   },
 
   actions: {
-
     fetch_pages (context) {
-      axios.defaults.baseURL = 'http://jade-cms.com:4000';
       axios.get('/api/v1/pages')
       .then(response => {
-        var page
+        var page, route, routes = []
         for (page of response.data) {
-      
+          if (page.component == 'HTMLRenderer') { 
+            route = {'name': page.name, 'path': page.slug, 'component': HTMLRenderer}
+          }
+          routes.push(route)
         }
+        route = { path: "*", component: PageNotFound }
+        routes.push(route)
+
+        router.addRoutes(routes)
+
+        context.commit('set_routes', routes)
         context.commit('set_pages', response.data)
       })
       .catch(e => {
@@ -95,7 +120,6 @@ const store = new Vuex.Store({
     },
 
     fetch_main_menu (context) {
-      axios.defaults.baseURL = 'http://jade-cms.com:4000';
       axios.get('/api/v1/main-menu')
       .then(response => {
         // JSON responses are automatically parsed.
@@ -107,17 +131,39 @@ const store = new Vuex.Store({
     },
 
     fetch_current_page (context, {name, path}) {
-      axios.defaults.baseURL = 'http://jade-cms.com:4000';
-      axios.get('/api/v1/pages/' + name)
+      if (path == '/') { name = 'index' }
+
+      axios.get('/api/v1/pages' + path)
       .then(response => {
+        var page
+        page = response.data[0]
         // JSON responses are automatically parsed.
-        context.commit('set_current_page', {page: response.data[0], name: name, path: path}) 
+
+        context.commit('set_current_page', {page: page, name: name, path: path}) 
+        context.dispatch('fetch_page_content', {page: page, path: path})
+
       })
       .catch(e => {
         context.commit('set_errors', e)
       })
+    },
+
+    fetch_page_content( context, {page, path} ) {
+      if (page.component == 'HTMLRenderer') {
+        if (path == '/') { path = '/index' }
+
+        axios.get('/api/v1/pages' + path + '/content', { responseType: 'text' })
+        .then(response => {
+          context.commit('set_page_content', response.data)
+        })
+        .catch(e => {
+          context.commit('set_errors', e)
+        })
+      }
     }
-  },
+
+  }
+  
 })
 
 /* eslint-disable no-new */
@@ -128,14 +174,3 @@ new Vue({
   components: { Jade },
   template: '<Jade/>'
 })
-
-export default {
-  computed: {
-    get_pages: function () {
-      return this.$store.getters.get_pages
-    },
-    get_current_path: function () {
-      return this.$store.getters.get_current_path
-    }
-  }
-}
