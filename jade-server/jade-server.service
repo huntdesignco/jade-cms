@@ -7,13 +7,13 @@ Wants=network-online.target
 [Service]
 # if you install openrpt and xvfb, set the display number here
 Environment="DISPLAY=:17"
-ExecStart=/home/jade/jade-cms/jade-server/venv/bin/uwsgi       \
-        --ini /home/jade/jade-cms/jade-server/jade/jade.ini           \
+ExecStart=/Users/Will/Projects/jade-cms/jade-server/venv/bin/uwsgi       \
+        --ini /Users/Will/Projects/jade-cms/jade-server/jade/jade.ini           \
         --logto /var/log/uwsgi/jade-server.log      \
-        --socket /home/jade/jade-cms/jade-server/uwsgi.sock      \
-        --stats /home/jade/jade-cms/jade-server/stats.sock
-User=jade
-Group=jade
+        --socket /Users/Will/Projects/jade-cms/jade-server/uwsgi.sock      \
+        --stats /Users/Will/Projects/jade-cms/jade-server/stats.sock
+User=Will
+Group=Will
 RuntimeDirectory=uwsgi
 Restart=on-failure
 KillSignal=SIGTERM
